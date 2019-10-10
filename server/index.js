@@ -19,6 +19,8 @@ app.use(morgan('tiny'));
 app.use(cors());
 app.use(bodyParser.json());
 
+let database,collection;
+
 const games = [{
     id: 1,
     title: 'Mario'
@@ -34,8 +36,8 @@ const games = [{
 ];
 
 
-app.get('/', (request, response) => {
-    collection && collection.find({}).toArray((error, result) => {
+app.get('/table', (request, response) => {
+    tablesCollection && tablesCollection.find({}).toArray((error, result) => {
         if(error) {
             return response.status(500).send(error);
         }
@@ -77,20 +79,16 @@ app.get("/games/:title", (request, response) => {
 //     });
 // });
 
-app.post('/games', (request, response) => {
-    collection.insert(request.body, (error, result) => {
+app.post('/table', (request, response) => {
+    tablesCollection.insert(request.body, (error, result) => {
         if(error) {
             return response.status(500).send(error);
         }
-        const game = {
-            id: games.length + 1,
-            title: request.body.title
-        }
-        response.send(game);
+        response.send(request.body);
     });
 });
 
-let database,collection;
+
 
 const port = process.env.PORT || 2000;
 app.listen(port, () => {
@@ -100,6 +98,8 @@ app.listen(port, () => {
         }
         database = client.db(DATABASE_NAME);
         collection = database.collection("people");
+        tablesCollection = database.collection("table");
+
         console.log("Connected to `" + DATABASE_NAME + "`!");
     });
 });
